@@ -1,0 +1,166 @@
+
+using System;
+using System.Collections.Generic;
+
+public class Material
+{
+    public string iden { get; set; }
+    public string tit{ get; set; }
+    
+    // Espacio para propiedades adicionales
+    // public DateTime FechaRegistro 
+    // public int CantidadRegistrada 
+    // public int CantidadActual 
+
+    public Material(string iden string tit)
+    {
+        iden = iden;
+        tit=tit;
+    }
+}
+
+public class Persona
+{
+    public string Nombre { get; set; }
+    public string Cedula { get; set; }
+    public string Rol { get; set; }
+    public int PrestamosActivos { get; set; }
+
+    public Persona(string nombre, string cedula, string rol)
+    {
+        Nombre = nombre;
+        Cedula = cedula;
+        Rol = rol;
+        PrestamosActivos = 0;
+    }
+
+    public int LimitePrestamos()
+    {
+        return Rol switch
+        {
+            "Estudiante" => 5,
+            "Profesor" => 3,
+            "Administrativo" => 1,
+            _ => 0,
+        };
+    }
+}
+
+public class Biblioteca
+{
+    private List<Material> materiales;
+    private List<Persona> personas;
+    private List<string> historial;
+
+    public Biblioteca()
+    {
+        materiales = new List<Material>();
+        personas = new List<Persona>();
+        historial = new List<string>();
+    }
+
+    public void AgregarMaterial(Material material)
+    {
+        if (materiales.Exists(m => m.iden == material.Identificador))
+        {
+            Console.WriteLine("Error: Ya existe un material con ese identificador.");
+        }
+        else
+        {
+            materiales.Add(material);
+            Console.WriteLine("Material agregado exitosamente.");
+        }
+    }
+
+    public void AgregarPersona(Persona persona)
+    {
+        if (personas.Exists(p => p.Cedula == persona.Cedula))
+        {
+            Console.WriteLine("Error: Ya existe una persona con esa cédula.");
+        }
+        else
+        {
+            personas.Add(persona);
+            Console.WriteLine("Persona agregada exitosamente.");
+        }
+    }
+
+    public void PrestarMaterial(string iden, string cedula)
+    {
+        var material = materiales.Find(m => m.iden == iden);
+        var persona = personas.Find(p => p.Cedula == cedula);
+
+        if (material == null || persona == null)
+        {
+            Console.WriteLine("Error: Material o persona no encontrados.");
+            return;
+        }
+
+        if (persona.PrestamosActivos < persona.LimitePrestamos())
+        {
+            persona.PrestamosActivos++;
+            historial.Add($"Prestamo: {persona.Nombre} ({persona.Cedula}) - {material.tit} el {DateTime.Now}");
+            Console.WriteLine("Material prestado exitosamente.");
+        }
+        else
+        {
+            Console.WriteLine("No se puede prestar el material. Límite de préstamos alcanzado.");
+        }
+    }
+
+    public void DevolverMaterial(string iden, string cedula)
+    {
+        var material = materiales.Find(m => m.iden == iden);
+        var persona = personas.Find(p => p.Cedula == cedula);
+
+        if (material == null || persona == null)
+        {
+            Console.WriteLine("Error: Material o persona no encontrados.");
+            return;
+        }
+
+        if (persona.PrestamosActivos > 0)
+        {
+            persona.PrestamosActivos--;
+            historial.Add($"Devolucion: {persona.Nombre} ({persona.Cedula}) - {material.tit} el {DateTime.Now}");
+            Console.WriteLine("Material devuelto exitosamente.");
+        }
+        else
+        {
+            Console.WriteLine("Error: No hay materiales prestados a esta persona.");
+        }
+    }
+
+    public void MostrarHistorial()
+    {
+        Console.WriteLine("Historial de movimientos:");
+        foreach (var movimiento in historial)
+        {
+            Console.WriteLine(movimiento);
+        }
+    }
+
+    // Método para eliminar persona si no tiene préstamos activos
+    public void EliminarPersona(string cedula)
+    {
+        var persona = personas.Find(p => p.Cedula == cedula);
+        if (persona != null)
+        {
+            if (persona.PrestamosActivos == 0)
+            {
+                personas.Remove(persona);
+                Console.WriteLine("Persona eliminada exitosamente.");
+            }
+            else
+            {
+                Console.WriteLine("Error: No se puede eliminar a la persona. Tiene materiales prestados.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Error: Persona no encontrada.");
+        }
+    }
+}
+
+
